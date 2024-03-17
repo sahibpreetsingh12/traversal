@@ -10,7 +10,7 @@ https://huggingface.co/traversaal-ai-hackathon
 
 
 ## ARchitecture
-![arch/hackthon.png]
+![rch](arch/hackthon.png)
 Using python==3.10
 ```
 python -m venv venv
