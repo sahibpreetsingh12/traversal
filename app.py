@@ -21,6 +21,7 @@ QDRANT_URL = os.getenv('QDRANT_URL')
 QDRANT_API_KEY = os.getenv('QDRANT_API_KEY')
 VECTOR_DB_COLLECTION = 'traversal'
 ARES_API_KEY = os.getenv('ARES_API_KEY')
+ARES_API_KEY = 'ares_f50411febe0ebdb73a71f3ae04b97327cc5dd481ebfc321723454317d56e3729'
 OPENAI_API_KEY = os.getenv('open_ai_key')
 
 
@@ -113,7 +114,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
 
             response_ares = requests.post(url, json=payload, headers=headers)
             json_data = json.loads(response_ares.text)
-
+            # print(json_data)
             # Access the 'response_text' field
             response_text = json_data['data']['response_text']
 
