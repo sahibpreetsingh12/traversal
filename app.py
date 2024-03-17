@@ -184,14 +184,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
                 else:
                     response = response_rag
                     print('RAG -->',decider['answer'])
-                    # prompt_template = PromptTemplate.from_template(
-                    #     """As a super awesome planner for hotels 
-                    #     you have been given a response --> {response} 
-                    #     your goal is to make it impressive for end user and 
-                    #     the user should not feel that 
-                    #     they are reading repsonse from a AI."""
-                    # )
-                    # response = llm(prompt_template.format(response=response))
+                    
             else:
                 response = "RAG response\n\n" + response_rag + "\n\nRealtime Response using Traversaal API\n\n" + response_text
             st.write(response)
