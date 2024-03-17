@@ -1,0 +1,9 @@
+langchain
+sentence_transformers
+qdrant-client
+huggingface 
+datasets
+pandas
+python-dotenv
+streamlit==1.32.2
+langchain-openai
