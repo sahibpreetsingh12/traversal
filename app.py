@@ -118,22 +118,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
             response_text = json_data['data']['response_text']
 
 
-#             template = """
-#             Before your read anything. remeber that examples at bottom are very importnat too.
 
-#             Hey, let’s imagine you're a judge at a Gen AI hackathon. 
-#             The challenge is to build an application that selects a suitable hotel 
-#             for the user and answers all related queries about hotels in the area. 
-#             You've received two answers {answer_rag} and {answer_api} to evaluate. 
-#             .\n{format_instructions}\n{question}\n {answer_rag} and {answer_api}
-#             Choose the one that is broader in 
-#             scope and more advantageous to the client asking questions to the application.
-
-#             examples:
-#             1. what are the best hotels in Houston? -> 2
-#             2. can you give me some details about JW Marriott Houston Downtown? ->1
-
-# """
             template = """
             Hey ChatGPT, let’s imagine that you are a judge at a Gen AI hackathon and the challenge is to build an application that selects a suitable hotel for the user and answers all the related queries of the user about the hotels in that area.
             You have been given two answers to evaluate. Pick an answer that is more broader in scope and more advantageous to the client who is asking questions to the application.
