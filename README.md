@@ -3,7 +3,14 @@ Traversaal Hackathon
 
 https://huggingface.co/traversaal-ai-hackathon
 
+## How to Run
 
+1. You need your **Qdrant URL** and **Qdrant API KEY**.
+2. Plugin the key in your .env file. Example of this is .env.example file.
+
+
+## ARchitecture
+![arch/hackthon.png]
 Using python==3.10
 ```
 python -m venv venv
