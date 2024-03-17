@@ -112,7 +112,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
                 {"context": index , "question": RunnablePassthrough()}
                 | prompt_structure
                 | llm
-                | parser_rag()
+                | parser_rag
                 # | StrOutputParser()
             )
             
