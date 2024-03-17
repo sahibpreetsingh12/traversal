@@ -36,8 +36,20 @@ class OutputMaker(BaseModel):
                         .While choosing also look which of the 2 answers provide more diverse options then
                         that has to be given preference.Choose 1 for RAG and 2 for Search API""")
 
+# Define your desired data structure.
+class OutputMaker_Rag(BaseModel):
+    
+    answer: str = Field(description="""Descriptor to tell wthether our LLM can give an answer looking at the context
+                        provided or not because if not then instead of going to user with Apologies and 
+                        saying that you don't have answer in context return a Integer""")
+
+
 # Set up a parser + inject instructions into the prompt template.
 parser = JsonOutputParser(pydantic_object=OutputMaker)
+
+
+# Set up a parser + inject instructions into the prompt template.
+parser_rag = JsonOutputParser(pydantic_object=OutputMaker_Rag)
 
 st.set_page_config(page_title="Chat with hotels data, powered by Langchain Qdrant Traversaal OpenAI", page_icon="📃💬", layout="centered", initial_sidebar_state="auto", menu_items=None)
 st.title("Chat with hotels data, powered by Langchain Qdrant Traversaal OpenAI 💬")
@@ -61,7 +73,8 @@ def load_data():
             api_key=QDRANT_API_KEY
         )
         qdrant = Qdrant(qdrant_client_obj, VECTOR_DB_COLLECTION, embeddings)
-        retriever = qdrant.as_retriever(search_type="mmr")
+        # retriever = qdrant.as_retriever(search_type="mmr")
+        retriever = qdrant.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.5})
         return retriever
 index = load_data()
 
@@ -99,55 +112,34 @@ if st.session_state.messages[-1]["role"] != "assistant":
                 {"context": index , "question": RunnablePassthrough()}
                 | prompt_structure
                 | llm
-                | StrOutputParser()
+                | parser_rag()
+                # | StrOutputParser()
             )
-            # print('Prompt going is -->',prompt,index)
+            
             response_rag = rag_chain.invoke(prompt)
-            url = "https://api-ares.traversaal.ai/live/predict"
+            print("  response_rag is ",response_rag)
+            if 'answer' in response_rag:
+                try:
+                    if int(response_rag['answer']):
 
-            payload = { "query": [prompt] }
-            headers = {
-            "x-api-key": ARES_API_KEY,
-            "content-type": "application/json"
-            }
+                        url = "https://api-ares.traversaal.ai/live/predict"
 
-            response_ares = requests.post(url, json=payload, headers=headers)
-            json_data = json.loads(response_ares.text)
+                        payload = { "query": [prompt] }
+                        headers = {
+                        "x-api-key": ARES_API_KEY,
+                        "content-type": "application/json"
+                        }
 
-            # Access the 'response_text' field
-            response_text = json_data['data']['response_text']
+                        response_ares = requests.post(url, json=payload, headers=headers)
+                        json_data = json.loads(response_ares.text)
+
+                        # Access the 'response_text' field
+                        response_text = json_data['data']['response_text']
+                except:
+                    response_rag = response_rag
 
 
-#             template = """
-#             Before your read anything. remeber that examples at bottom are very importnat too.
-
-#             Hey, let’s imagine you're a judge at a Gen AI hackathon. 
-#             The challenge is to build an application that selects a suitable hotel 
-#             for the user and answers all related queries about hotels in the area. 
-#             You've received two answers {answer_rag} and {answer_api} to evaluate. 
-#             .\n{format_instructions}\n{question}\n {answer_rag} and {answer_api}
-#             Choose the one that is broader in 
-#             scope and more advantageous to the client asking questions to the application.
-
-#             examples:
-#             1. what are the best hotels in Houston? -> 2
-#             2. can you give me some details about JW Marriott Houston Downtown? ->1
-
-# """
-            template = """
-            Hey ChatGPT, let’s imagine that you are a judge at a Gen AI hackathon and the challenge is to build an application that selects a suitable hotel for the user and answers all the related queries of the user about the hotels in that area.
-            You have been given two answers to evaluate. Pick an answer that is more broader in scope and more advantageous to the client who is asking questions to the application.
-            Instructions:
-            Pick the hotels that have the top reviews regarding hygiene and safety.
-            Prioritize hotels with amenities such as free Wi-Fi and complimentary breakfast.
-            Consider the proximity of the hotels to popular attractions and public transportation.
-            Ensure the selected hotels offer flexible cancellation policies and competitive pricing.
-            Look for hotels that provide accessible facilities for guests with special needs.
-            Verify the availability of on-site facilities like swimming pools, fitness centers, and parking.
-            Check for any additional perks or discounts offered by the hotels, such as loyalty programs or package deals.
-            You've received two answers {answer_rag} and {answer_api} to evaluate. 
-            .\n{format_instructions}\n{question}\n {answer_rag} and {answer_api}
-            """
+        
             prompt = PromptTemplate(
             template="""
             Hey ChatGPT, let’s imagine that you are a judge at a Gen AI hackathon and the challenge is to build an application that selects a suitable hotel for the user and answers all the related queries of the user about the hotels in that area.
